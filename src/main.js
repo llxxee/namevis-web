@@ -1,8 +1,7 @@
-import { AltUri } from "@ndn/naming-convention2";
-import dayjs from "dayjs";
 import { get as hashGet } from "hashquery";
-import { setChildren, el } from "redom";
+import { mount, setChildren, el } from "redom";
 import { Server } from "./server.js";
+import { TimeSeries } from "./timeseries.js"
 
 const $fDevices = document.querySelector("#f_devices");
 const $pPackets = document.querySelector("#p_packets");
@@ -17,10 +16,12 @@ $fDevices.addEventListener("submit", (evt) => {
   }
   $fDevices.remove();
 
+  const timeSeries = new TimeSeries();
+  mount(document.querySelector("#g_timeseries"), timeSeries);
+
   const stream = server.liveCapture(selectedDevice);
-  stream.on("packet", ({ timestamp, name, type }) => {
-    const dt = dayjs(timestamp);
-    $pPackets.textContent += `\n${dt.format("HH:mm:ss")} ${type} ${AltUri.ofName(name)}`
+  stream.on("packet", (packet) => {
+    timeSeries.push(packet);
   });
   stream.on("close", () => console.log("close"));
 });

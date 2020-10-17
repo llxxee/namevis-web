@@ -7,6 +7,7 @@
   "dependencies": {
     "@ndn/naming-convention2": "0.0.20200909",
     "@ndn/packet": "0.0.20200909",
+    "chart.js": "^2.9.3",
     "dayjs": "^1.9.3",
     "hashquery": "^1.0.0",
     "mitt": "^2.1.0",
