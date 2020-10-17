@@ -6,7 +6,10 @@
   },
   "dependencies": {
     "@ndn/naming-convention2": "0.0.20200909",
-    "@ndn/packet": "0.0.20200909"
+    "@ndn/packet": "0.0.20200909",
+    "dayjs": "^1.9.3",
+    "mitt": "^2.1.0",
+    "redom": "^3.27.1"
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.4"
