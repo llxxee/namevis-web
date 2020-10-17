@@ -1,12 +1,13 @@
 import { AltUri } from "@ndn/naming-convention2";
 import dayjs from "dayjs";
+import { get as hashGet } from "hashquery";
 import { setChildren, el } from "redom";
 import { Server } from "./server.js";
 
 const $fDevices = document.querySelector("#f_devices");
 const $pPackets = document.querySelector("#p_packets");
 
-const server = new Server();
+const server = new Server(hashGet("server"));
 let selectedDevice = "";
 
 $fDevices.addEventListener("submit", (evt) => {
