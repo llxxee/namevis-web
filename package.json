@@ -1,0 +1,17 @@
+{
+  "name": "@yoursunny/namevis-web",
+  "private": true,
+  "scripts": {
+    "start": "parcel src/index.html --no-autoinstall"
+  },
+  "dependencies": {
+    "@ndn/naming-convention2": "0.0.20200909",
+    "@ndn/packet": "0.0.20200909"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "browserslist": [
+    "since 2017-06"
+  ]
+}
