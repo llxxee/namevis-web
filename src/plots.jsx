@@ -22,7 +22,6 @@ export class Plots {
       </div>
     </div>;
 
-    this.push = this.push.bind(this);
     this.recents = [];
     this.stopped = true;
     this.$stop.addEventListener("click", (evt) => {
@@ -41,7 +40,7 @@ export class Plots {
     this.stop();
     this.stream = stream;
     this.$tree.update({ prefixlen, suffixlen });
-    this.stream?.on("packet", this.push);
+    this.stream?.on("packet", (packet) => this.push(packet));
     this.exit = exit;
   }
 

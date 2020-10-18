@@ -3,16 +3,16 @@ import "./style.css";
 
 import { el, mount, router } from "redom";
 
-import { CaptureForm } from "./capture-form.jsx";
 import { ConnectForm } from "./connect-form.jsx";
 import { Plots } from "./plots.jsx";
 import { Server } from "./server.js";
+import { StartForm } from "./start-form.jsx";
 
 let server;
 
 const app = router(".app", {
   connect: ConnectForm,
-  capture: CaptureForm,
+  start: StartForm,
   plots: Plots,
 });
 mount(document.body, (
@@ -32,15 +32,19 @@ async function selectServer(serverUri) {
   if (serverUri) {
     server = new Server(serverUri);
   }
-  const devices = await server.listDevices();
-  app.update("capture", {
+  const [devices, files] = await Promise.all([
+    server.listDevices(),
+    server.listFiles(),
+  ]);
+  app.update("start", {
     devices,
-    callback: startCapture,
+    files,
+    callback: startPlots,
   });
 }
 
-function startCapture({ device, prefixlen, suffixlen }) {
-  const stream = server.liveCapture(device);
+function startPlots({ device, file, prefixlen, suffixlen }) {
+  const stream = device ? server.liveCapture(device) : server.readPcap(file);
   app.update("plots", {
     stream,
     prefixlen,
