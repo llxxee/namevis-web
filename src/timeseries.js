@@ -2,16 +2,16 @@ import Chart from "chart.js";
 import { el } from "redom";
 
 export class TimeSeries {
-  second = 0;
-  count = 0;
-
   constructor() {
+    this.second = 0;
+    this.count = 0;
+
     this.el = el("canvas");
     this.dataset = { data: [] };
     this.chart = new Chart(this.el, {
       type: "line",
       data: {
-        datasets: [this.dataset]
+        datasets: [this.dataset],
       },
       options: {
         legend: {
@@ -21,14 +21,14 @@ export class TimeSeries {
           xAxes: [{
             type: "time",
             display: true,
-          }]
+          }],
         },
         plugins: {
           datalabels: {
             display: false,
           },
         },
-      }
+      },
     });
   }
 

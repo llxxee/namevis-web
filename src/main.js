@@ -1,8 +1,9 @@
 import { get as hashGet } from "hashquery";
-import { mount, setChildren, el } from "redom";
+import { el, mount, setChildren } from "redom";
+
 import { Server } from "./server.js";
-import { TimeSeries } from "./timeseries.js"
-import { Tree } from "./tree.js"
+import { TimeSeries } from "./timeseries.js";
+import { Tree } from "./tree.js";
 
 const $fDevices = document.querySelector("#f_devices");
 const $tPrefix = document.querySelector("#t_prefix");

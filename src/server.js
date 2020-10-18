@@ -15,15 +15,15 @@ export class Server {
   liveCapture(device) {
     const emitter = mitt();
     const ws = new WebSocket(`${this.uri.replace(/^http/, "ws")}/live.websocket?device=${encodeURIComponent(device)}`);
-    ws.onmessage = (ev) => {
+    ws.addEventListener("message", (ev) => {
       const j = JSON.parse(ev.data);
       j.timestamp = new Date(j.timestamp);
       j.name = new Name(j.name);
       emitter.emit("packet", j);
-    };
-    ws.onclose = () => {
+    });
+    ws.addEventListener("close", () => {
       emitter.emit("close");
-    };
+    });
     emitter.close = () => {
       ws.close();
     };

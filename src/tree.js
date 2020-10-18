@@ -1,26 +1,28 @@
-import { AltUri } from "@ndn/naming-convention2"
-import { toHex } from "@ndn/tlv"
-import Chart from "chart.js";
+// eslint-disable-next-line import/no-unassigned-import
 import "chartjs-chart-graph";
+// eslint-disable-next-line import/no-unassigned-import
 import "chartjs-plugin-datalabels";
+
+import { AltUri } from "@ndn/naming-convention2";
+import { toHex } from "@ndn/tlv";
+import Chart from "chart.js";
 import { el } from "redom";
 
 export class Tree {
-  labels = ["/"];
-  map = new Map();
-
   constructor({ collapsePrefixLength = 0, stripSuffixLength = 0 }) {
     this.collapsePrefixLength = collapsePrefixLength;
     this.stripSuffixLength = stripSuffixLength;
 
     this.el = el("canvas");
     this.dataset = { data: [{ name: "/" }] };
+    this.labels = ["/"];
+    this.map = new Map();
     this.map.set("", 0);
     this.chart = new Chart(this.el, {
       type: "tree",
       data: {
         labels: this.labels,
-        datasets: [this.dataset]
+        datasets: [this.dataset],
       },
       options: {
         legend: {
@@ -32,9 +34,9 @@ export class Tree {
         plugins: {
           datalabels: {
             formatter: (v) => v.name,
-          }
+          },
         },
-      }
+      },
     });
   }
 

@@ -2,6 +2,8 @@
   "name": "@yoursunny/namevis-web",
   "private": true,
   "scripts": {
+    "build": "parcel build src/index.html --no-autoinstall --public-url ./",
+    "lint": "xo --fix",
     "start": "parcel src/index.html --no-autoinstall"
   },
   "dependencies": {
@@ -11,12 +13,12 @@
     "chart.js": "^2.9.3",
     "chartjs-chart-graph": "^2.2.1",
     "chartjs-plugin-datalabels": "^0.7.0",
-    "dayjs": "^1.9.3",
     "hashquery": "^1.0.0",
     "mitt": "^2.1.0",
     "redom": "^3.27.1"
   },
   "devDependencies": {
+    "@yoursunny/xo-config": "^0.33.0",
     "parcel-bundler": "^1.12.4"
   },
   "browserslist": [
