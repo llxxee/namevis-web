@@ -15,11 +15,25 @@
     "chartjs-plugin-datalabels": "^0.7.0",
     "hashquery": "^1.0.0",
     "mitt": "^2.1.0",
+    "purecss": "^2.0.3",
     "redom": "^3.27.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.12.3",
     "@yoursunny/xo-config": "^0.33.0",
+    "babel-plugin-transform-redom-jsx": "^3.0.1",
     "parcel-bundler": "^1.12.4"
+  },
+  "babel": {
+    "plugins": [
+      "babel-plugin-transform-redom-jsx",
+      [
+        "@babel/plugin-transform-react-jsx",
+        {
+          "pragma": "el"
+        }
+      ]
+    ]
   },
   "browserslist": [
     "since 2017-06"

@@ -3,17 +3,23 @@ import { el } from "redom";
 
 export class TimeSeries {
   constructor() {
-    this.second = 0;
-    this.count = 0;
-
+    this.data = [];
+    this.clear();
     this.el = el("canvas");
-    this.dataset = { data: [] };
+  }
+
+  onmount() {
     this.chart = new Chart(this.el, {
       type: "line",
       data: {
-        datasets: [this.dataset],
+        datasets: [
+          {
+            data: this.data,
+          },
+        ],
       },
       options: {
+        aspectRatio: 1.5,
         legend: {
           display: false,
         },
@@ -21,6 +27,12 @@ export class TimeSeries {
           xAxes: [{
             type: "time",
             display: true,
+            time: {
+              displayFormats: {
+                second: "HH:mm:ss",
+              },
+              unit: "second",
+            },
           }],
         },
         plugins: {
@@ -32,6 +44,13 @@ export class TimeSeries {
     });
   }
 
+  clear() {
+    this.second = 0;
+    this.count = 0;
+    this.data.splice(0, Infinity);
+    this.chart?.update();
+  }
+
   push({ timestamp }) {
     const sec = (timestamp.getTime() / 1000).toFixed(0);
     if (this.second === 0) {
@@ -40,7 +59,7 @@ export class TimeSeries {
 
     let needUpdate = false;
     while (this.second < sec) {
-      this.dataset.data.push({
+      this.data.push({
         t: new Date(this.second * 1000),
         y: this.count,
       });
@@ -49,10 +68,10 @@ export class TimeSeries {
       needUpdate = true;
     }
     if (needUpdate) {
-      while (this.dataset.data.length > 300) {
-        this.dataset.data.shift();
+      while (this.data.length > 300) {
+        this.data.shift();
       }
-      this.chart.update();
+      this.chart?.update();
     }
 
     ++this.count;
