@@ -10,12 +10,13 @@
 <fieldset>
 <legend>capture</legend>
 <div id="devices"></div>
+<label>collapse prefix length <input type="number" id="t_prefix" min="0" value="2"></label>
+<label>strip suffix length <input type="number" id="t_suffix" min="0" value="2"></label>
 <input type="submit" value="start">
 </fieldset>
 </form>
 
-<pre id="p_packets"></pre>
-
 <div id="g_timeseries"></div>
+<div id="g_tree"></div>
 
 <script src="./main.js"></script>

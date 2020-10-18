@@ -22,7 +22,12 @@ export class TimeSeries {
             type: "time",
             display: true,
           }]
-        }
+        },
+        plugins: {
+          datalabels: {
+            display: false,
+          },
+        },
       }
     });
   }
