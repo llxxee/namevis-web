@@ -12,7 +12,7 @@ export class StartForm {
           <button this="$capture" type="submit" class="pure-button pure-button-primary">Capture</button>
         </div>
         <div class="pure-control-group">
-          <label htmlFor="start_file">Device</label>
+          <label htmlFor="start_file">File</label>
           <select this="$file" id="start_file">
             <option value="">loading</option>
           </select>
