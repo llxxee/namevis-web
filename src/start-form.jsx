@@ -19,12 +19,14 @@ export class StartForm {
           <button this="$read" type="submit" class="pure-button">Read</button>
         </div>
         <div class="pure-control-group">
-          <label htmlFor="start_prefixlen">Collapse prefix length</label>
+          <label htmlFor="start_prefixlen">Prefix length</label>
           <input this="$prefixlen" id="start_prefixlen" type="number" min="0" value="4"/>
+          <span class="pure-form-message-inline">Prefix components collapsed in name hierarchy.</span>
         </div>
         <div class="pure-control-group">
-          <label htmlFor="start_suffixlen">Strip prefix length</label>
+          <label htmlFor="start_suffixlen">Suffix length</label>
           <input this="$suffixlen" id="start_suffixlen" type="number" min="0" value="2"/>
+          <span class="pure-form-message-inline">Suffix components stripped in name hierarchy.</span>
         </div>
       </fieldset>
     </form>;
