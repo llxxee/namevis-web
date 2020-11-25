@@ -20,12 +20,12 @@ export class StartForm {
         </div>
         <div class="pure-control-group">
           <label htmlFor="start_prefixlen">Prefix length</label>
-          <input this="$prefixlen" id="start_prefixlen" type="number" min="0" value="4"/>
+          <input this="$prefixlen" id="start_prefixlen" type="number" min="0" value="0"/>
           <span class="pure-form-message-inline">Prefix components collapsed in name hierarchy.</span>
         </div>
         <div class="pure-control-group">
           <label htmlFor="start_suffixlen">Suffix length</label>
-          <input this="$suffixlen" id="start_suffixlen" type="number" min="0" value="2"/>
+          <input this="$suffixlen" id="start_suffixlen" type="number" min="0" value="0"/>
           <span class="pure-form-message-inline">Suffix components stripped in name hierarchy.</span>
         </div>
       </fieldset>
