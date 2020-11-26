@@ -3,7 +3,8 @@ import { el } from "redom";
 
 export class TimeSeries {
   constructor() {
-    this.data = [];
+    this.interestPacket = [];
+    this.dataPacket = [];
     this.clear();
     this.el = el("canvas");
   }
@@ -14,14 +15,21 @@ export class TimeSeries {
       data: {
         datasets: [
           {
-            data: this.data,
+            label: "#interest packets",
+            borderColor: "orange",
+            data: this.interestPacket,
+          },
+          {
+            label: "#data packets",
+            borderColor: "green",
+            data: this.dataPacket,
           },
         ],
       },
       options: {
         aspectRatio: 1.5,
         legend: {
-          display: false,
+          display: true,
         },
         scales: {
           xAxes: [{
@@ -29,7 +37,7 @@ export class TimeSeries {
             display: true,
             time: {
               displayFormats: {
-                second: "HH:mm:ss",
+                second: "MM-DD HH:mm:ss",
               },
               unit: "second",
             },
@@ -46,34 +54,52 @@ export class TimeSeries {
 
   clear() {
     this.second = 0;
-    this.count = 0;
-    this.data.splice(0, Infinity);
+    this.interestCount = 0;
+    this.dataCount = 0;
+    this.interestPacket.splice(0, Infinity);
     this.chart?.update();
   }
 
-  push({ timestamp }) {
+  push({ timestamp,  type}) {
+    // TODO: delete
+    console.log("ts time stamp" + timestamp);
+    console.log("ts packet type" + type);
+
     const sec = (timestamp.getTime() / 1000).toFixed(0);
     if (this.second === 0) {
       this.second = sec;
     }
 
     let needUpdate = false;
+    // update the current time til the latest packet time
     while (this.second < sec) {
-      this.data.push({
+      this.interestPacket.push({
         t: new Date(this.second * 1000),
-        y: this.count,
+        y: this.interestCount
       });
+      this.dataPacket.push({
+        t: new Date(this.second * 1000),
+        y: this.dataCount
+      })
       ++this.second;
-      this.count = 0;
+      this.dataCount = 0;
+      this.interestCount = 0;
       needUpdate = true;
     }
     if (needUpdate) {
-      while (this.data.length > 300) {
-        this.data.shift();
-      }
+      // TODO: support time range selection
+      // while (this.interestPacket.length > 300) {
+      //   this.interestPacket.shift();
+      // }
       this.chart?.update();
     }
 
-    ++this.count;
+    if(type == "I"){
+      console.log("find interest packet")
+      ++this.interestCount;
+    }
+    else{
+      ++this.dataCount;
+    }
   }
 }

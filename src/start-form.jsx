@@ -16,7 +16,7 @@ export class StartForm {
           <select this="$file" id="start_file">
             <option value="">loading</option>
           </select>
-          <button this="$read" type="submit" class="pure-button">Read</button>
+          <button this="$read" type="submit" class="pure-button pure-button-primary">Read</button>
         </div>
         <div class="pure-control-group">
           <label htmlFor="start_prefixlen">Prefix length</label>
