@@ -11,7 +11,7 @@ export class Plots {
         <h3 style="text-align:center">Time Range</h3>
         <input type="checkbox" this="$noEnd" name="no end time"/>
         <label for="no end time"> Up to the latest packet</label>
-        <h1>TODO</h1>
+        <input this="$timeRangePicker" id="timeRangePicker"/>
       </div>
       <div class="pure-u-1-2">
         <h3>Packet Throughput</h3>
@@ -48,6 +48,7 @@ export class Plots {
 
   update({ stream, prefixlen, suffixlen, exit }) {
     this.stop();
+    this.addTimeRangePicker();
     this.stream = stream;
     this.$tree.update({ prefixlen, suffixlen });
     this.stream?.on("packet", (packet) => this.push(packet));
@@ -72,4 +73,13 @@ export class Plots {
     }
     this.$recents.textContent = this.recents.join("\n");
   }
+
+  addTimeRangePicker() {
+    $('#timeRangePicker').daterangepicker({
+      opens: 'left'
+    }, function(start, end, label) {
+      console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+    });
+  }
+
 }
