@@ -3,6 +3,7 @@ import { el, h } from "redom";
 
 import { TimeSeries } from "./timeseries.js"; // eslint-disable-line no-unused-vars
 import { Tree } from "./tree.js"; // eslint-disable-line no-unused-vars
+import { D3Tree } from "./d3tree.js";
 
 export class Plots {
   constructor() {
@@ -20,6 +21,10 @@ export class Plots {
       <div class="pure-u-1-2">
         <h3>Namespace Tree</h3>
         <Tree this="$tree"/>
+      </div>
+      <div class="pure-u-1-2">
+        <h3>Namespace Tree</h3>
+        <D3Tree this="$d3tree"/>
       </div>
       <div class="pure-u-1">
         <h3>Recent Packets</h3>
@@ -50,7 +55,9 @@ export class Plots {
     this.stop();
     this.addTimeRangePicker();
     this.stream = stream;
+    // TODO: del
     this.$tree.update({ prefixlen, suffixlen });
+    this.$d3tree.update({ prefixlen, suffixlen });
     this.stream?.on("packet", (packet) => this.push(packet));
     this.exit = exit;
   }
@@ -65,7 +72,9 @@ export class Plots {
     console.log("received packet from websocket");
 
     this.$timeseries.push(packet);
+    // TODO: del
     this.$tree.push(packet);
+    this.$d3tree.push(packet);
     this.recents.push(AltUri.ofName(packet.name) + " (" + packet.type + "), "
                       + packet.timestamp);
     while (this.recents.length > 10) {

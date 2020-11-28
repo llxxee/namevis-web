@@ -24,6 +24,10 @@ export class Tree {
         datasets: [
           {
             data: this.data,
+            backgroundColor: function(ctx) {
+              var value = ctx.dataset.data[ctx.dataIndex];
+              return "grey";
+            },
           },
         ],
       },
@@ -58,9 +62,9 @@ export class Tree {
   }
 
   push({ name }) {
-    if (++this.count === 1) {
-      this.dataset.data.pop();
-    }
+    // if (++this.count === 1) {
+    //   this.dataset.data.pop();
+    // }
 
     let needUpdate = false;
     let parent = 0;
@@ -89,3 +93,7 @@ export class Tree {
     }
   }
 }
+
+// TODO: 
+// 1. use node color to show if an interest has been fulfilled
+// 2. show trust relation
