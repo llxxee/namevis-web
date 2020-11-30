@@ -31,6 +31,8 @@ export class Server {
       const j = JSON.parse(ev.data);
       j.timestamp = new Date(j.timestamp);
       j.name = new Name(j.name);
+      // TODO:
+      j.signer = "TODO";
       emitter.emit("packet", j);
     });
     ws.addEventListener("close", () => {

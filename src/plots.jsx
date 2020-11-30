@@ -8,7 +8,7 @@ import { D3Tree } from "./d3tree.js";
 export class Plots {
   constructor() {
     <div this="el" class="pure-g">
-      <div class="pure-u-1">
+      <div class="pure-u-1-2">
         <h3 style="text-align:center">Time Range</h3>
         <input type="checkbox" this="$noEnd" name="no end time"/>
         <label for="no end time"> Up to the latest packet</label>
@@ -18,7 +18,7 @@ export class Plots {
         <h3>Packet Throughput</h3>
         <TimeSeries this="$timeseries"/>
       </div>
-      <div class="pure-u-1-2">
+      <div class="pure-u-1">
         <h3>Namespace Tree</h3>
         <Tree this="$tree"/>
       </div>
@@ -77,7 +77,7 @@ export class Plots {
     this.$d3tree.push(packet);
     this.recents.push(AltUri.ofName(packet.name) + " (" + packet.type + "), "
                       + packet.timestamp);
-    while (this.recents.length > 10) {
+    while (this.recents.length > 1000) {
       this.recents.shift();
     }
     this.$recents.textContent = this.recents.join("\n");

@@ -29,18 +29,25 @@ export class D3Tree {
 
     this.el = el("#canvas");
 
+    // this.treeData = {
+    //     "name": "Top Level",
+    //     "children": [
+    //       { 
+    //         "name": "Level 2: A",
+    //         "children": [
+    //           { "name": "Son of A" },
+    //           { "name": "Daughter of A" }
+    //         ]
+    //       },
+    //       { "name": "Level 2: B" }
+    //     ]
+    //   };
     this.treeData = {
         "name": "Top Level",
         "children": [
-          { 
-            "name": "Level 2: A",
-            "children": [
-              { "name": "Son of A" },
-              { "name": "Daughter of A" }
-            ]
-          },
-          { "name": "Level 2: B" }
-        ]
+          
+        ],
+        "components": ["/"]
       };
   }
 
@@ -228,7 +235,7 @@ export class D3Tree {
 
 
   push({ name }) {
-   sleepFor(10);
+   // sleepFor(10);
     console.log(this.treeData.children);
     // this.treeData.children.push({"name": "xxxx"});
     // this.root = d3.hierarchy(this.treeData, function(d) { return d.children; });
@@ -236,7 +243,8 @@ export class D3Tree {
     // this.root.y0 = 0;
     // // Assigns the x and y position for the nodes
     // this.treeMapData = this.treemap(this.root);
-    this.updateTree(this.root);
+    // this.updateTree(this.root);
+    this.insertToTree("Top Level/test")
 
 
     // if (++this.count === 1) {
@@ -268,6 +276,143 @@ export class D3Tree {
     // if (needUpdate) {
     //   this.chart?.update();
     // }
+  }
+
+
+
+
+  insertToTree(data, ignoreMaxBranchingDepth) {
+    
+
+ // TODO:
+    // var dataName = data.getName();
+    // var nameSize = dataName.size();
+    var dataName = "Top Level/test";
+    var nameSize = 2;
+
+
+   
+    
+  
+    var treeNode = this.root;
+    var idx = 0;
+  
+    if (treeNode["children"] === undefined) {
+      treeNode["children"] = [];
+    }
+  
+    while (idx < nameSize && treeNode["children"].length > 0) {
+      var childMatch = false;
+      for (var child in treeNode["children"]) {
+        var tempNode = treeNode["children"][child];
+        
+        // TODO:
+        // if (tempNode["components"][0] == dataName.get(idx).toEscapedString()) {
+        if (tempNode["components"][0] == dataName[idx]) {
+          childMatch = true;
+          // this child matches the initial component
+          idx += 1;
+          for (var i = 1; i < tempNode["components"].length; i++) {
+            var matchComponent = "";
+            if (idx < nameSize) {
+              // TODO:
+              // matchComponent = dataName.get(idx).toEscapedString();
+              matchComponent = dataName[idx];
+            }
+            if (tempNode["components"][i] != matchComponent) {
+              // we cannot fully match with this node, need to break this node into two
+              remainingComponents = tempNode["components"].slice(i, tempNode["components"].length);
+              var remainingChild = {
+                "components": remainingComponents,
+                "children": tempNode["children"]
+              };
+  
+              tempNode["components"] = tempNode["components"].slice(0, i);
+              
+              var newChildComponents = [];
+              while (idx < nameSize) {
+                  // TODO:
+                // newChildComponents.push(dataName.get(idx).toEscapedString());
+                newChildComponents.push(dataName[idx]);
+                idx ++;
+              }
+              
+              if (newChildComponents.length > 0) {
+                var newChild = {
+                  "components": newChildComponents,
+                  "children": []
+                };
+                tempNode["children"] = [newChild, remainingChild];
+                tempNode = newChild;
+              } else {
+                tempNode["children"] = [remainingChild];
+              }
+              
+              break;
+            } else {
+              idx ++;
+            }
+          }
+          // we can fully match with this node, need to try its children
+          treeNode = tempNode;
+          if (treeNode["children"] === undefined) {
+            treeNode["children"] = [];
+          }
+          break;
+        }
+      }
+      if (!childMatch) {
+        // we tried all the children of this tree node, and none can match, we break out of the outer loop
+        break;
+      }
+    }
+  
+    if (idx < nameSize) {
+      // no children of tree node can match, we need to insert new nodes
+      var newChildComponents = [];
+      while (idx < nameSize) {
+          // TODO:
+        // newChildComponents.push(dataName.get(idx).toEscapedString());
+        newChildComponents.push(dataName[idx]);
+        idx += 1;
+      }
+  
+      var newChild = {
+        "components": newChildComponents,
+        "children": []
+      };
+      
+    //   if (maxBranchingFactor < 0) {
+    //     treeNode["children"].push(newChild);
+    //   } else if (treeNode["children"].length < maxBranchingFactor || ignoreMaxBranchingDepth === true) {
+    //     treeNode["children"].push(newChild);
+    //   } else {
+    //     // not added, return defined
+    //     return;
+    //   }
+      
+    //   isDone = true;
+      treeNode = newChild;
+    }
+  
+    // insert data content object after this insertion's end node
+    var content = "";
+    try {
+      content = data.getContent().buf().toString('binary');
+    } catch (e) {
+      content = "NULL";
+    }
+  
+    var contentNode = {
+      "components": [content],
+      "is_content": true
+    };
+  
+    // append to last treeNode
+    treeNode["children"].push(contentNode);
+  
+    this.updateTree(this.root);
+    return contentNode;
   }
 
 

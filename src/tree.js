@@ -9,7 +9,7 @@ import { el } from "redom";
 export class Tree {
   constructor() {
     this.labels = ["/"];
-    this.data = [{ name: "/" }];
+    this.data = [{ name: "/", type: "", signer: ""}];
     this.map = new Map();
     this.clear();
 
@@ -24,20 +24,47 @@ export class Tree {
         datasets: [
           {
             data: this.data,
-            backgroundColor: function(ctx) {
-              var value = ctx.dataset.data[ctx.dataIndex];
-              return "grey";
+            pointRadius: 20,
+            pointBorderWidth: 3,
+            // pointBackgroundColor: 0,
+            pointHoverRadius: 15,
+            pointBackgroundColor: function(ctx) {
+              var record = ctx.dataset.data[ctx.dataIndex];
+              if(record.type.includes("I")) {
+                // yellow background if interest packet
+                return "#CFB56D";
+              } else if(record.type.includes("K")) {
+                // blue background if it's an interest for key
+                return "#8DB2FC";
+              }
             },
+            pointBorderColor: function(ctx) {
+              var record = ctx.dataset.data[ctx.dataIndex];
+              console.log("record");
+              console.log(record);
+              if(record.type.includes("D")) {
+                // green border if data packet
+                return "#599970";
+              }
+            }
           },
         ],
       },
       options: {
-        aspectRatio: 1.5,
+        aspectRatio: 2,
         legend: {
           display: false,
         },
         tree: {
-          orientation: "vertical",
+          orientation: "horizontal",
+        },
+        layout: {
+          padding: {
+              left: 50,
+              right: 90,
+              top: 0,
+              bottom: 0
+          }
         },
         plugins: {
           datalabels: {
@@ -61,11 +88,11 @@ export class Tree {
     this.suffixlen = suffixlen;
   }
 
-  push({ name }) {
+  push({ name, type, signer }) {
+    console.log("received type" + type);
     // if (++this.count === 1) {
     //   this.dataset.data.pop();
     // }
-
     let needUpdate = false;
     let parent = 0;
     for (let i = this.prefixlen; i <= name.length - this.suffixlen; ++i) {
@@ -75,16 +102,26 @@ export class Tree {
       if (typeof index === "undefined") {
         index = this.labels.length;
         const record = { parent };
-        if (i === this.prefixlen) {
+        if (i == this.prefixlen) {
           record.name = AltUri.ofName(prefix);
         } else {
           record.name = AltUri.ofComponent(name.at(i - 1));
         }
+        record.type = "";
+        record.signer = "";
         this.labels.push(AltUri.ofName(prefix));
         this.data.push(record);
         this.map.set(prefixHex, index);
         needUpdate = true;
       }
+
+      if(i == name.length) {
+        // record the packet type on the last node
+        this.data[index].type += type;
+        // record the signer info on the last packet
+        this.data[index].signer += signer;
+      }
+
       parent = index;
     }
 
