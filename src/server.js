@@ -32,8 +32,20 @@ export class Server {
       j.timestamp = new Date(j.timestamp);
       j.name = new Name(j.name);
       // TODO:
-      j.signer = "TODO";
+      j.signer = "alice/key/TODO";
+
       emitter.emit("packet", j);
+      if(j.signer) {
+        // add key packet (type: K, Key interest not satisfied)
+        var keyPacket = {
+          name: new Name(j.signer),
+          timestamp: j.timestamp,
+          signer: "",
+          type: "K"
+        };
+        emitter.emit("packet", keyPacket);
+      }
+
     });
     ws.addEventListener("close", () => {
       emitter.emit("close");

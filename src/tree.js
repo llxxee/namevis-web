@@ -5,6 +5,7 @@ import { AltUri } from "@ndn/naming-convention2";
 import { toHex } from "@ndn/tlv";
 import Chart from "chart.js";
 import { el } from "redom";
+import { lab } from "d3";
 
 export class Tree {
   constructor() {
@@ -109,7 +110,11 @@ export class Tree {
         }
         record.type = "";
         record.signer = "";
-        this.labels.push(AltUri.ofName(prefix));
+        var label = AltUri.ofName(prefix);
+        if(signer) {
+          label += (", signed by " + signer);
+        }
+        this.labels.push(label);
         this.data.push(record);
         this.map.set(prefixHex, index);
         needUpdate = true;
