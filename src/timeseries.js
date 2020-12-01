@@ -52,6 +52,11 @@ export class TimeSeries {
     });
   }
 
+  updateTimeRange(startTime, endTime) {
+    // TODO:
+    console.log("time series component received " + startTime + " end " + endTime);
+  }
+
   clear() {
     this.second = 0;
     this.interestCount = 0;

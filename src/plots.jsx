@@ -8,14 +8,18 @@ import { D3Tree } from "./d3tree.js";
 export class Plots {
   constructor() {
     <div this="el" class="pure-g">
-      <div class="pure-u-1-2">
+      <div class="pure-u-1">
         <h3 style="text-align:center">Time Range</h3>
-        <label for="no end time">Time Range Filter </label>
-        <input this="$timeRangePicker" id="timeRangePicker"/>
+        <input this="$timeRangePicker" id="timeRangePicker" style="width:100%; text-align:center;"/>
       </div>
       <div class="pure-u-1-2">
         <h3>Packet Throughput</h3>
         <TimeSeries this="$timeseries"/>
+      </div>
+      <div class="pure-u-1-2">
+        <h3 style="text-align:center">Recent Packets</h3>
+        <p style="text-align:center"><i><b>(I): Interest packet; (D): Data packet</b></i></p>
+        <pre this="$recents" style="text-align:center">recent packets</pre>
       </div>
       <div class="pure-u-1">
         <h3>Namespace Tree</h3>
@@ -26,16 +30,13 @@ export class Plots {
         <D3Tree this="$d3tree"/>
       </div>
       <div class="pure-u-1">
-        <h3>Recent Packets</h3>
-        <p><i><b>(I): Interest packet; (D): Data packet</b></i></p>
-        <pre this="$recents">recent packets</pre>
-      </div>
-      <div class="pure-u-1">
         <button this="$stop" class="pure-button">Stop</button>
         <button this="$exit" class="pure-button" disabled>Exit</button>
       </div>
     </div>;
 
+    this.timeFilterStart = moment().startOf('hour').subtract(24, 'hour');
+    this.timeFilterEnd = moment().startOf('hour').add(24, 'hour');
     this.recents = [];
     this.stopped = true;
     this.$stop.addEventListener("click", (evt) => {
@@ -54,6 +55,8 @@ export class Plots {
     this.stop();
     this.addTimeRangePicker();
     this.stream = stream;
+    this.$timeseries.updateTimeRange(this.timeFilterStart, this.timeFilterEnd);
+    this.$tree.updateTimeRange(this.timeFilterStart, this.timeFilterEnd);
     // TODO: del
     this.$tree.update({ prefixlen, suffixlen });
     this.$d3tree.update({ prefixlen, suffixlen });
@@ -74,19 +77,31 @@ export class Plots {
     // TODO: del
     this.$tree.push(packet);
     this.$d3tree.push(packet);
-    this.recents.push(AltUri.ofName(packet.name) + " (" + packet.type + "), "
-                      + packet.timestamp);
-    while (this.recents.length > 10) {
+    this.recents.push("(" + packet.type + ") " + AltUri.ofName(packet.name));
+    while (this.recents.length > 20) {
       this.recents.shift();
     }
     this.$recents.textContent = this.recents.join("\n");
   }
 
   addTimeRangePicker() {
+    var self = this;
     $('#timeRangePicker').daterangepicker({
-      opens: 'left'
+      opens: 'center',
+      timePicker: true,
+      startDate: this.timeFilterStart,
+      endDate: this.timeFilterEnd,
+      locale: {
+        format: 'M/DD hh:mm A'
+      }
     }, function(start, end, label) {
-      console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+      self.timeFilterStart = start.toDate();
+      self.timeFilterEnd = end.toDate();
+      self.$timeseries.updateTimeRange(self.timeFilterStart, self.timeFilterEnd);
+      self.$tree.updateTimeRange(self.timeFilterStart, self.timeFilterEnd);
+      console.log("A new date selection was made: "
+                  + self.timeFilterStart
+                  + ' to ' + self.timeFilterEnd);
     });
   }
 

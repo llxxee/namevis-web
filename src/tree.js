@@ -154,6 +154,11 @@ export class Tree {
     this.suffixlen = suffixlen;
   }
 
+  updateTimeRange(startTime, endTime) {
+    // TODO:
+    console.log("tree component received " + startTime + " end " + endTime);
+  }
+
   push({ name, type, signer }) {
     console.log("received type" + type);
     // if (++this.count === 1) {
