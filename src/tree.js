@@ -7,14 +7,18 @@ import Chart from "chart.js";
 import { el } from "redom";
 import { lab } from "d3";
 
+const CHILDREN_HIDDEN = 2;
+const COLLAPSED_HIDDEN = 1;
+const NOT_HIDDEN = 0;
+
 export class Tree {
   constructor() {
     this.labels = ["/"];
-    this.data = [{ name: "/", type: "", signer: ""}];
+    this.data = [{ name: "/", type: "", signer: "", hiddenStatus: NOT_HIDDEN, rawParent: 0}];
     this.map = new Map();
     this.clear();
 
-    this.el = el("canvas");
+    this.el = el("canvas", { id: "nameTree" });
   }
 
   onmount() {
@@ -27,7 +31,6 @@ export class Tree {
             data: this.data,
             pointRadius: 20,
             pointBorderWidth: 3,
-            // pointBackgroundColor: 0,
             pointHoverRadius: 15,
             pointBackgroundColor: function(ctx) {
               var record = ctx.dataset.data[ctx.dataIndex];
@@ -41,8 +44,6 @@ export class Tree {
             },
             pointBorderColor: function(ctx) {
               var record = ctx.dataset.data[ctx.dataIndex];
-              console.log("record");
-              console.log(record);
               if(record.type.includes("D")) {
                 // green border if data packet
                 return "#599970";
@@ -74,6 +75,71 @@ export class Tree {
         },
       },
     });
+
+    var self = this;
+    document.getElementById("nameTree").onclick = function(evt){
+      var chartData = self.chart.data.datasets[0].data;
+      var activePoints = self.chart.getElementsAtEvent(evt);
+      if(activePoints.length != 0){
+        var idx = activePoints[0]._index;
+        if(chartData[idx].hiddenStatus == NOT_HIDDEN){
+          chartData[idx].hiddenStatus = CHILDREN_HIDDEN;
+        } else if(chartData[idx].hiddenStatus == CHILDREN_HIDDEN) {
+          chartData[idx].hiddenStatus = NOT_HIDDEN;
+        }
+
+        console.log("chartData after click" + chartData[idx].hiddenStatus);
+        console.log(chartData);
+        self.hideHiddenDataInChart(self.data, self.labels, self.chart);
+      }
+      self.chart?.update();
+    };
+  }
+///////////////////////////////////////////////////////////////////////////
+
+// TODO: this is totally messed
+///////////////////////////////////////////////////////////////////////////
+  hideHiddenDataInChart(rawData, rawLabels, chart) {
+    var newData = [];
+    var newLabels = [];
+    var indexMap = {};
+    console.log("rawData in hide");
+    console.log(rawData);
+    newData.push(rawData[0]);
+    newLabels.push(rawLabels[0]);
+    indexMap[0] = 0;
+    var newIdx = 1;
+    
+
+    for (let i = 1; i < rawData.length; ++i) {
+      if(rawData[i].hiddenStatus == CHILDREN_HIDDEN)
+        continue;
+      var rawParent = rawData[i].rawParent;
+      if(rawData[rawParent].hiddenStatus == NOT_HIDDEN) {
+        rawData[i].hiddenStatus = NOT_HIDDEN;
+      } else {
+        rawData[i].hiddenStatus = COLLAPSED_HIDDEN;
+      }
+    }
+    console.log("updated hidden status: ");
+    console.log(rawData);
+    for (let i = 1; i < rawData.length; ++i) {
+      var rawParent = rawData[i].rawParent;
+      if(rawData[i].hiddenStatus != COLLAPSED_HIDDEN
+        && rawData[rawParent].hiddenStatus == NOT_HIDDEN){
+        indexMap[i] = newIdx;
+        var rawParent = rawData[i].rawParent;
+        rawData[i].parent = indexMap[rawParent];
+        newData.push(rawData[i]);
+        newLabels.push(rawLabels[i]);
+        newIdx++;
+      }
+    }
+    console.log("new");
+    console.log(newData);
+    console.log(newLabels);
+    chart.data.labels = newLabels;
+    chart.data.datasets[0].data = newData;
   }
 
   clear() {
@@ -110,6 +176,8 @@ export class Tree {
         }
         record.type = "";
         record.signer = "";
+        record.hiddenStatus = NOT_HIDDEN;
+        record.rawParent = parent;
         var label = AltUri.ofName(prefix);
         if(signer) {
           label += (", signed by " + signer);
@@ -131,6 +199,7 @@ export class Tree {
     }
 
     if (needUpdate) {
+      // TODO: update hiddenStatus
       this.chart?.update();
     }
   }

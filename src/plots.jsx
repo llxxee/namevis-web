@@ -10,8 +10,7 @@ export class Plots {
     <div this="el" class="pure-g">
       <div class="pure-u-1-2">
         <h3 style="text-align:center">Time Range</h3>
-        <input type="checkbox" this="$noEnd" name="no end time"/>
-        <label for="no end time"> Up to the latest packet</label>
+        <label for="no end time">Time Range Filter </label>
         <input this="$timeRangePicker" id="timeRangePicker"/>
       </div>
       <div class="pure-u-1-2">
@@ -77,7 +76,7 @@ export class Plots {
     this.$d3tree.push(packet);
     this.recents.push(AltUri.ofName(packet.name) + " (" + packet.type + "), "
                       + packet.timestamp);
-    while (this.recents.length > 1000) {
+    while (this.recents.length > 10) {
       this.recents.shift();
     }
     this.$recents.textContent = this.recents.join("\n");

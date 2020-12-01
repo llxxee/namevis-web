@@ -98,7 +98,7 @@ export class TimeSeries {
       console.log("find interest packet")
       ++this.interestCount;
     }
-    else{
+    else if(type == "D"){
       ++this.dataCount;
     }
   }
