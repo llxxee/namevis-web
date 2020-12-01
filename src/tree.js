@@ -103,13 +103,12 @@ export class Tree {
     var newData = [];
     var newLabels = [];
     var indexMap = {};
-    console.log("rawData in hide");
-    console.log(rawData);
+    // console.log("rawData in hide");
+    // console.log(rawData);
     newData.push(rawData[0]);
     newLabels.push(rawLabels[0]);
     indexMap[0] = 0;
     var newIdx = 1;
-    
 
     for (let i = 1; i < rawData.length; ++i) {
       if(rawData[i].hiddenStatus == CHILDREN_HIDDEN)
@@ -121,8 +120,8 @@ export class Tree {
         rawData[i].hiddenStatus = COLLAPSED_HIDDEN;
       }
     }
-    console.log("updated hidden status: ");
-    console.log(rawData);
+    // console.log("updated hidden status: ");
+    // console.log(rawData);
     for (let i = 1; i < rawData.length; ++i) {
       var rawParent = rawData[i].rawParent;
       if(rawData[i].hiddenStatus != COLLAPSED_HIDDEN
@@ -135,9 +134,9 @@ export class Tree {
         newIdx++;
       }
     }
-    console.log("new");
-    console.log(newData);
-    console.log(newLabels);
+    // console.log("new");
+    // console.log(newData);
+    // console.log(newLabels);
     chart.data.labels = newLabels;
     chart.data.datasets[0].data = newData;
   }
