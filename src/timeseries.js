@@ -7,6 +7,8 @@ export class TimeSeries {
     this.dataPacket = [];
     this.clear();
     this.el = el("canvas");
+    this.startTime = null;
+    this.endTime = null;
   }
 
   onmount() {
@@ -53,8 +55,26 @@ export class TimeSeries {
   }
 
   updateTimeRange(startTime, endTime) {
-    // TODO:
-    console.log("time series component received " + startTime + " end " + endTime);
+    console.log("update time range start " + startTime + " end " + endTime);
+    this.startTime = startTime;
+    this.endTime = endTime;
+    var filteredDataPacket = [];
+    var filteredInterestPacket = [];
+    for (let i = 0; i < this.interestPacket.length; ++i) {
+      var p = this.interestPacket[i];
+      if (p.t >= this.startTime && p.t <= this.endTime) {
+          filteredInterestPacket.push(p);
+      }
+    }
+    for(let j = 0; j < this.dataPacket.length; ++j) {
+      var p = this.dataPacket[j];
+      if (p.t >= this.startTime && p.t <= this.endTime) {
+          filteredDataPacket.push(p);
+        }
+    }
+    this.chart.data.datasets[0].data = filteredInterestPacket;
+    this.chart.data.datasets[1].data = filteredDataPacket;
+    this.chart?.update();
   }
 
   clear() {
@@ -78,14 +98,21 @@ export class TimeSeries {
     let needUpdate = false;
     // update the current time til the latest packet time
     while (this.second < sec) {
-      this.interestPacket.push({
-        t: new Date(this.second * 1000),
+      var currentTime = new Date(this.second * 1000);
+      var interestP = {
+        t: currentTime,
         y: this.interestCount
-      });
-      this.dataPacket.push({
-        t: new Date(this.second * 1000),
+      };
+      var dataP = {
+        t: currentTime,
         y: this.dataCount
-      })
+      };
+      if(currentTime <= this.endTime) {
+        this.chart.data.datasets[0].data.push(interestP);
+        this.chart.data.datasets[1].data.push(dataP);
+      }
+      this.interestPacket.push(interestP);
+      this.dataPacket.push(dataP);
       ++this.second;
       this.dataCount = 0;
       this.interestCount = 0;
