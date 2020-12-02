@@ -7,6 +7,7 @@ import Chart from "chart.js";
 import { el } from "redom";
 import { lab } from "d3";
 
+const OUT_OF_TIME_RANGE = 3;
 const CHILDREN_HIDDEN = 2;
 const COLLAPSED_HIDDEN = 1;
 const NOT_HIDDEN = 0;
@@ -14,10 +15,19 @@ const NOT_HIDDEN = 0;
 export class Tree {
   constructor() {
     this.labels = ["/"];
-    this.data = [{ name: "/", type: "", signer: "", hiddenStatus: NOT_HIDDEN, rawParent: 0}];
+    this.data = [{
+      name: "/",
+      type: "",
+      signer: "",
+      hiddenStatus: NOT_HIDDEN,
+      rawParent: 0,
+      timestamps: []
+    }];
     this.map = new Map();
+    this.indexMap = new Map();
     this.clear();
-
+    this.startTime = null;
+    this.endTime = null;
     this.el = el("canvas", { id: "nameTree" });
   }
 
@@ -90,7 +100,7 @@ export class Tree {
 
         console.log("chartData after click" + chartData[idx].hiddenStatus);
         console.log(chartData);
-        self.hideHiddenDataInChart(self.data, self.labels, self.chart);
+        self.hideHiddenDataInChart(self.data, self.labels, self.indexMap, self.chart);
       }
       self.chart?.update();
     };
@@ -99,21 +109,30 @@ export class Tree {
 
 // TODO: this is totally messed
 ///////////////////////////////////////////////////////////////////////////
-  hideHiddenDataInChart(rawData, rawLabels, chart) {
+  hideHiddenDataInChart(rawData, rawLabels, indexMap, chart) {
     var newData = [];
     var newLabels = [];
-    var indexMap = {};
-    // console.log("rawData in hide");
-    // console.log(rawData);
+    console.log("rawData in hide");
+    console.log(rawData);
     newData.push(rawData[0]);
     newLabels.push(rawLabels[0]);
-    indexMap[0] = 0;
+    indexMap.set(0, 0);
     var newIdx = 1;
 
     for (let i = 1; i < rawData.length; ++i) {
+      var rawParent = rawData[i].rawParent;
+      if(rawData[rawParent].hiddenStatus == OUT_OF_TIME_RANGE) {
+        rawData[i].hiddenStatus = OUT_OF_TIME_RANGE;
+        continue;
+      }
+      var isOut = isOutOfTimeRange(rawData[i].timestamps,
+                    this.startTime, this.endTime);
+      if(isOut) {
+        rawData[i].hiddenStatus = OUT_OF_TIME_RANGE;
+        continue;
+      }
       if(rawData[i].hiddenStatus == CHILDREN_HIDDEN)
         continue;
-      var rawParent = rawData[i].rawParent;
       if(rawData[rawParent].hiddenStatus == NOT_HIDDEN) {
         rawData[i].hiddenStatus = NOT_HIDDEN;
       } else {
@@ -125,10 +144,11 @@ export class Tree {
     for (let i = 1; i < rawData.length; ++i) {
       var rawParent = rawData[i].rawParent;
       if(rawData[i].hiddenStatus != COLLAPSED_HIDDEN
-        && rawData[rawParent].hiddenStatus == NOT_HIDDEN){
-        indexMap[i] = newIdx;
+        && rawData[rawParent].hiddenStatus == NOT_HIDDEN
+        && rawData[i].hiddenStatus != OUT_OF_TIME_RANGE) {
+        indexMap.set(i, newIdx);
         var rawParent = rawData[i].rawParent;
-        rawData[i].parent = indexMap[rawParent];
+        rawData[i].parent = indexMap.get(rawParent);
         newData.push(rawData[i]);
         newLabels.push(rawLabels[i]);
         newIdx++;
@@ -146,6 +166,7 @@ export class Tree {
     this.data.splice(1, Infinity);
     this.map.clear();
     this.map.set("", 0);
+    this.indexMap.clear();
     this.chart?.update();
   }
 
@@ -155,40 +176,67 @@ export class Tree {
   }
 
   updateTimeRange(startTime, endTime) {
-    // TODO:
-    console.log("tree component received " + startTime + " end " + endTime);
+    console.log("update time range in tree graph, start " + startTime
+                + " end " + endTime);
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.hideHiddenDataInChart(this.data, this.labels, this.indexMap, this.chart);
+    this.chart?.update();
   }
 
-  push({ name, type, signer }) {
-    console.log("received type" + type);
-    // if (++this.count === 1) {
-    //   this.dataset.data.pop();
-    // }
+  push({ name, type, signer, timestamp }) {
     let needUpdate = false;
-    let parent = 0;
+    let rawParent = 0;
+    var inTimeRange = (timestamp >= this.startTime && timestamp <= this.endTime);
+    console.log("in time range? " + inTimeRange);
+    console.log(timestamp);
+    console.log("start: " + this.startTime);
     for (let i = this.prefixlen; i <= name.length - this.suffixlen; ++i) {
       const prefix = name.getPrefix(i);
       const prefixHex = toHex(prefix.value);
       let index = this.map.get(prefixHex);
       if (typeof index === "undefined") {
         index = this.labels.length;
-        const record = { parent };
+        const record = {
+          "type": "",
+          "signer": "",
+          "hiddenStatus": null,
+          "rawParent": rawParent,
+          "timestamps": [timestamp],
+          "parent": null,
+        };
+        // set hiddenStatus
+        if(inTimeRange) {
+          if(this.data[rawParent].hiddenStatus == COLLAPSED_HIDDEN
+            || this.data[rawParent].hiddenStatus == CHILDREN_HIDDEN)
+            record.hiddenStatus = COLLAPSED_HIDDEN;
+          else
+            record.hiddenStatus = NOT_HIDDEN;
+        } else {
+          record.hiddenStatus = OUT_OF_TIME_RANGE;
+        }
+
         if (i == this.prefixlen) {
           record.name = AltUri.ofName(prefix);
         } else {
           record.name = AltUri.ofComponent(name.at(i - 1));
         }
-        record.type = "";
-        record.signer = "";
-        record.hiddenStatus = NOT_HIDDEN;
-        record.rawParent = parent;
+
         var label = AltUri.ofName(prefix);
+        label += (", first seen at " + getDateTimeString(timestamp));
         if(signer) {
           label += (", signed by " + signer);
         }
         this.labels.push(label);
         this.data.push(record);
         this.map.set(prefixHex, index);
+        if(record.hiddenStatus == NOT_HIDDEN) {
+          // add to chart data
+          record.parent = this.indexMap.get(rawParent);
+          this.indexMap.set(this.data.length-1, this.chart.data.datasets[0].data.length);
+          this.chart.data.datasets[0].data.push(record);
+          this.chart.data.labels.push(label);
+        }
         needUpdate = true;
       }
 
@@ -199,16 +247,42 @@ export class Tree {
         this.data[index].signer += signer;
       }
 
-      parent = index;
+      rawParent = index;
+      // record all the timestamps associated with each node
+      this.data[rawParent].timestamps.push(timestamp);
+
+      // add to the chart data
+        // TODO: check time and hidden status
+      if(inTimeRange && this.data[rawParent].hiddenStatus == OUT_OF_TIME_RANGE) {
+        this.data[rawParent].hiddenStatus = NOT_HIDDEN;
+        this.indexMap.set(rawParent, this.chart.data.datasets[0].data.length);
+        var rawParentofParent = this.data[rawParent].rawParent;
+        this.data[rawParent] = this.indexMap.get(rawParentofParent);
+        this.chart.data.datasets[0].data.push(this.data[rawParent]);
+        this.chart.data.labels.push(this.labels[rawParent]);
+        needUpdate = true;
+      }
+      
     }
 
     if (needUpdate) {
-      // TODO: update hiddenStatus
       this.chart?.update();
     }
   }
 }
 
-// TODO: 
-// 1. use node color to show if an interest has been fulfilled
-// 2. show trust relation
+
+function getDateTimeString(timestamp){
+  return timestamp.toLocaleDateString(
+    undefined, {year: 'numeric', month: 'short', day: 'numeric' }
+  ) + " " + timestamp.toLocaleTimeString();
+}
+
+
+function isOutOfTimeRange(timestamps, startTime, endTime) {
+  for(let i = 0; i < timestamps.length; ++i) {
+    if(timestamps[i] >= startTime && timestamps[i] <= endTime)
+      return false;
+  }
+  return true;
+}
