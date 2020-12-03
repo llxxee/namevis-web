@@ -16,12 +16,12 @@ export class Server {
     return response.json();
   }
 
-  liveCapture(device) {
-    return this.openWebSocket(`/live.websocket?device=${encodeURIComponent(device)}`);
+  liveCapture(device, prefixlen, suffixlen) {
+    return this.openWebSocket(`/live.websocket?device=${encodeURIComponent(device)}&prefix=${prefixlen}&suffix=${suffixlen}`);
   }
 
-  readPcap(filename) {
-    return this.openWebSocket(`/file.websocket?filename=${encodeURIComponent(filename)}`);
+  readPcap(filename, prefixlen, suffixlen) {
+    return this.openWebSocket(`/file.websocket?filename=${encodeURIComponent(filename)}&prefix=${prefixlen}&suffix=${suffixlen}`);
   }
 
   openWebSocket(path) {
@@ -31,16 +31,17 @@ export class Server {
       const j = JSON.parse(ev.data);
       j.timestamp = new Date(j.timestamp);
       j.name = new Name(j.name);
-      // TODO:
-      j.signer = "alice/key/TODO";
+      j.signer = new Name(j.signer);
 
       emitter.emit("packet", j);
-      if(j.signer) {
+
+      if(j.signer.length) {
+        console.log("has signer");
         // add key packet (type: K, Key interest not satisfied)
         var keyPacket = {
           name: new Name(j.signer),
           timestamp: j.timestamp,
-          signer: "",
+          signer: new Name(),
           type: "K"
         };
         emitter.emit("packet", keyPacket);

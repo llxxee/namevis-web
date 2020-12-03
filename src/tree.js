@@ -185,9 +185,6 @@ export class Tree {
     let needUpdate = false;
     let rawParent = 0;
     var inTimeRange = (timestamp >= this.startTime && timestamp <= this.endTime);
-    console.log("in time range? " + inTimeRange);
-    console.log(timestamp);
-    console.log("start: " + this.startTime);
     for (let i = this.prefixlen; i <= name.length - this.suffixlen; ++i) {
       const prefix = name.getPrefix(i);
       const prefixHex = toHex(prefix.value);
@@ -221,9 +218,6 @@ export class Tree {
 
         var label = AltUri.ofName(prefix);
         label += (", first seen at " + getDateTimeString(timestamp));
-        if(signer) {
-          label += (", signed by " + signer);
-        }
         this.labels.push(label);
         this.data.push(record);
         this.map.set(prefixHex, index);
@@ -242,6 +236,12 @@ export class Tree {
         this.data[index].type += type;
         // record the signer info on the last packet
         this.data[index].signer += signer;
+        // update the label with signer info
+        if(signer && type == "D") {
+          this.labels[index] += (", signed by " + AltUri.ofName(signer));
+          this.chart.data.labels[this.indexMap.get(index)] = this.labels[index];
+        }
+        needUpdate = true;
       }
 
       rawParent = index;

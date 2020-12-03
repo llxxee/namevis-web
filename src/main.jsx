@@ -44,7 +44,9 @@ async function selectServer(serverUri) {
 }
 
 function startPlots({ device, file, prefixlen, suffixlen }) {
-  const stream = device ? server.liveCapture(device) : server.readPcap(file);
+  const stream = device ?
+                 server.liveCapture(device, prefixlen, suffixlen)
+                 : server.readPcap(file, prefixlen, suffixlen);
   app.update("plots", {
     stream,
     prefixlen,
