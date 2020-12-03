@@ -13,7 +13,6 @@
     "chart.js": "^2.9.3",
     "chartjs-chart-graph": "^2.2.1",
     "chartjs-plugin-datalabels": "^0.7.0",
-    "d3": "^4.0.0",
     "hashquery": "^1.0.0",
     "mitt": "^2.1.0",
     "purecss": "^2.0.3",

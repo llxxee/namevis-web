@@ -3,7 +3,6 @@ import { el, h } from "redom";
 
 import { TimeSeries } from "./timeseries.js"; // eslint-disable-line no-unused-vars
 import { Tree } from "./tree.js"; // eslint-disable-line no-unused-vars
-import { D3Tree } from "./d3tree.js";
 
 export class Plots {
   constructor() {
@@ -24,10 +23,6 @@ export class Plots {
       <div class="pure-u-1">
         <h3>Namespace Tree</h3>
         <Tree this="$tree"/>
-      </div>
-      <div class="pure-u-1-2">
-        <h3>Namespace Tree</h3>
-        <D3Tree this="$d3tree"/>
       </div>
       <div class="pure-u-1">
         <button this="$stop" class="pure-button">Stop</button>
@@ -57,9 +52,7 @@ export class Plots {
     this.stream = stream;
     this.$timeseries.updateTimeRange(this.timeFilterStart, this.timeFilterEnd);
     this.$tree.updateTimeRange(this.timeFilterStart, this.timeFilterEnd);
-    // TODO: del
     this.$tree.update({ prefixlen, suffixlen });
-    this.$d3tree.update({ prefixlen, suffixlen });
     this.stream?.on("packet", (packet) => this.push(packet));
     this.exit = exit;
   }
@@ -70,13 +63,8 @@ export class Plots {
 
   // update the tree and the time series graph
   push(packet) {
-    // TODO: delete
-    console.log("received packet from websocket");
-
     this.$timeseries.push(packet);
-    // TODO: del
     this.$tree.push(packet);
-    this.$d3tree.push(packet);
     this.recents.push("(" + packet.type + ") " + AltUri.ofName(packet.name));
     while (this.recents.length > 20) {
       this.recents.shift();
