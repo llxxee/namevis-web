@@ -105,10 +105,7 @@ export class Tree {
       self.chart?.update();
     };
   }
-///////////////////////////////////////////////////////////////////////////
 
-// TODO: this is totally messed
-///////////////////////////////////////////////////////////////////////////
   hideHiddenDataInChart(rawData, rawLabels, indexMap, chart) {
     var newData = [];
     var newLabels = [];
@@ -252,7 +249,6 @@ export class Tree {
       this.data[rawParent].timestamps.push(timestamp);
 
       // add to the chart data
-        // TODO: check time and hidden status
       if(inTimeRange && this.data[rawParent].hiddenStatus == OUT_OF_TIME_RANGE) {
         this.data[rawParent].hiddenStatus = NOT_HIDDEN;
         this.indexMap.set(rawParent, this.chart.data.datasets[0].data.length);
@@ -262,7 +258,6 @@ export class Tree {
         this.chart.data.labels.push(this.labels[rawParent]);
         needUpdate = true;
       }
-      
     }
 
     if (needUpdate) {
