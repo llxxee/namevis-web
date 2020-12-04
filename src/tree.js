@@ -12,16 +12,19 @@ const CHILDREN_HIDDEN = 2;
 const COLLAPSED_HIDDEN = 1;
 const NOT_HIDDEN = 0;
 
+var signerColorMap = new Map();
+
 export class Tree {
   constructor() {
     this.labels = ["/"];
     this.data = [{
       name: "/",
       type: "",
-      signer: "",
+      signer: null,
       hiddenStatus: NOT_HIDDEN,
       rawParent: 0,
-      timestamps: []
+      timestamps: [],
+      wholeName: "/",
     }];
     this.map = new Map();
     this.indexMap = new Map();
@@ -46,7 +49,7 @@ export class Tree {
               var record = ctx.dataset.data[ctx.dataIndex];
               if(record.type.includes("I")) {
                 // yellow background if interest packet
-                return "#CFB56D";
+                return "rgba(240,232,120,0.97)";
               } else if(record.type.includes("K")) {
                 // blue background if it's an interest for key
                 return "#8DB2FC";
@@ -54,8 +57,15 @@ export class Tree {
             },
             pointBorderColor: function(ctx) {
               var record = ctx.dataset.data[ctx.dataIndex];
+              // mark the border according to key name
+              if(record.signer && AltUri.ofName(record.signer) != "/"){
+                return signerColorMap.get(AltUri.ofName(record.signer));
+              }
+              if(record.type.includes("K")){
+                return signerColorMap.get(record.wholeName);
+              }
               if(record.type.includes("D")) {
-                // green border if data packet
+                // green border if data packet and not signed
                 return "#599970";
               }
             }
@@ -235,10 +245,14 @@ export class Tree {
         // record the packet type on the last node
         this.data[index].type += type;
         // record the signer info on the last packet
-        this.data[index].signer += signer;
+        this.data[index].signer = signer;
+        this.data[index].wholeName = AltUri.ofName(name);
         // update the label with signer info
         if(signer && type == "D") {
-          this.labels[index] += (", signed by " + AltUri.ofName(signer));
+          var signerName = AltUri.ofName(signer);
+          if(!signerColorMap.has(signerName))
+            signerColorMap.set(signerName, getRandomColor());
+          this.labels[index] += (", signed by " + signerName);
           this.chart.data.labels[this.indexMap.get(index)] = this.labels[index];
         }
         needUpdate = true;
@@ -280,4 +294,12 @@ function isOutOfTimeRange(timestamps, startTime, endTime) {
       return false;
   }
   return true;
+}
+
+
+function getRandomColor() {
+  var r = (Math.random()*250).toFixed(0);
+  var g = (Math.random()*250).toFixed(0);
+  var b = (Math.random()*250).toFixed(0);
+  return "rgba("+r+","+g+","+b+",1)";
 }
