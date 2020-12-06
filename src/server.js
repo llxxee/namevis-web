@@ -16,12 +16,12 @@ export class Server {
     return response.json();
   }
 
-  liveCapture(device, prefixlen, suffixlen) {
-    return this.openWebSocket(`/live.websocket?device=${encodeURIComponent(device)}&prefix=${prefixlen}&suffix=${suffixlen}`);
+  liveCapture(device, suffixlen) {
+    return this.openWebSocket(`/live.websocket?device=${encodeURIComponent(device)}&suffixlen=${suffixlen}`);
   }
 
-  readPcap(filename, prefixlen, suffixlen) {
-    return this.openWebSocket(`/file.websocket?filename=${encodeURIComponent(filename)}&prefix=${prefixlen}&suffix=${suffixlen}`);
+  readPcap(filename, suffixlen) {
+    return this.openWebSocket(`/file.websocket?filename=${encodeURIComponent(filename)}&suffixlen=${suffixlen}`);
   }
 
   openWebSocket(path) {
@@ -32,6 +32,9 @@ export class Server {
       j.timestamp = new Date(j.timestamp);
       j.name = new Name(j.name);
       j.signer = new Name(j.signer);
+
+      console.log("ws received packet ");
+      console.log(j);
 
       emitter.emit("packet", j);
 

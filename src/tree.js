@@ -5,7 +5,7 @@ import { AltUri } from "@ndn/naming-convention2";
 import { toHex } from "@ndn/tlv";
 import Chart from "chart.js";
 import { el } from "redom";
-import { lab } from "d3";
+import { geoConicConformal, lab } from "d3";
 
 const OUT_OF_TIME_RANGE = 3;
 const CHILDREN_HIDDEN = 2;
@@ -180,6 +180,8 @@ export class Tree {
   update({ prefixlen, suffixlen }) {
     this.prefixlen = prefixlen;
     this.suffixlen = suffixlen;
+    console.log("prefixlen: " + this.prefixlen);
+    console.log("suffixlen: " + this.suffixlen);
   }
 
   updateTimeRange(startTime, endTime) {
@@ -195,7 +197,9 @@ export class Tree {
     let needUpdate = false;
     let rawParent = 0;
     var inTimeRange = (timestamp >= this.startTime && timestamp <= this.endTime);
-    for (let i = this.prefixlen; i <= name.length - this.suffixlen; ++i) {
+    // Not stripping suffixlen as we now use server aggregation
+    // for (let i = this.prefixlen; i <= name.length - this.suffixlen; ++i) {
+    for (let i = this.prefixlen; i <= name.length; ++i) {
       const prefix = name.getPrefix(i);
       const prefixHex = toHex(prefix.value);
       let index = this.map.get(prefixHex);
@@ -241,14 +245,16 @@ export class Tree {
         needUpdate = true;
       }
 
-      if(i == name.length) {
+      // since we use server side aggregation, i == name.length doesn't mean
+      // it's the last node if suffixlen != 0
+      if(i == name.length && this.suffixlen == 0) {
         // record the packet type on the last node
         this.data[index].type += type;
         // record the signer info on the last packet
         this.data[index].signer = signer;
         this.data[index].wholeName = AltUri.ofName(name);
         // update the label with signer info
-        if(signer && type == "D") {
+        if(signer.length && type == "D") {
           var signerName = AltUri.ofName(signer);
           if(!signerColorMap.has(signerName))
             signerColorMap.set(signerName, getRandomColor());
@@ -277,6 +283,8 @@ export class Tree {
     if (needUpdate) {
       this.chart?.update();
     }
+    console.log("this.data: ");
+    console.log(this.data);
   }
 }
 

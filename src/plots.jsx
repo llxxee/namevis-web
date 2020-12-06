@@ -70,7 +70,7 @@ export class Plots {
     if(packet.type == "K")
       return;
     this.recents.push("(" + packet.type + ") " + AltUri.ofName(packet.name));
-    while (this.recents.length > 20) {
+    while (this.recents.length > 25) {
       this.recents.shift();
     }
     this.$recents.textContent = this.recents.join("\n");

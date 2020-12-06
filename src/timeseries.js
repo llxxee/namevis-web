@@ -44,6 +44,11 @@ export class TimeSeries {
               unit: "second",
             },
           }],
+          yAxes : [{
+            ticks : {
+                min : 0
+            }
+          }],
         },
         plugins: {
           datalabels: {
@@ -85,12 +90,13 @@ export class TimeSeries {
     this.chart?.update();
   }
 
-  push({ timestamp,  type}) {
+  push({ timestamp,  type, count}) {
     // TODO: delete
     console.log("ts time stamp" + timestamp);
     console.log("ts packet type" + type);
 
-    const sec = (timestamp.getTime() / 1000).toFixed(0);
+    // const sec = (timestamp.getTime() / 1000).toFixed(0);
+    const sec = Math.floor(timestamp.getTime() / 1000);
     if (this.second === 0) {
       this.second = sec;
     }
@@ -99,6 +105,8 @@ export class TimeSeries {
     // update the current time til the latest packet time
     while (this.second < sec) {
       var currentTime = new Date(this.second * 1000);
+      console.log("adding this second ");
+      console.log(currentTime)
       var interestP = {
         t: currentTime,
         y: this.interestCount
@@ -113,6 +121,7 @@ export class TimeSeries {
       }
       this.interestPacket.push(interestP);
       this.dataPacket.push(dataP);
+      console.log(this.interestPacket);
       ++this.second;
       this.dataCount = 0;
       this.interestCount = 0;
@@ -128,10 +137,10 @@ export class TimeSeries {
 
     if(type == "I"){
       console.log("find interest packet")
-      ++this.interestCount;
+      this.interestCount += count;
     }
     else if(type == "D"){
-      ++this.dataCount;
+      this.dataCount += count;
     }
   }
 }
