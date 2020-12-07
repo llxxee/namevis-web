@@ -24,10 +24,22 @@ export class Plots {
       <div class="pure-u-1">
         <h3>Namespace Tree</h3>
         <Tree this="$tree"/>
+        <p><b>Legend</b>
+        <ul>
+          <li><span style="background-color:rgba(240,232,120,0.97)">Yellow node
+           without border:</span> Name of the interest that is not satisfied</li>
+          <li><span style="background-color:rgba(240,232,120,0.97); border-style: solid;
+          border-color:rgb(242, 150, 150);">Yellow node with border:</span>
+            Name of the interest that has been satisfied. The border color denotes which key signs the data packet.</li>
+          <li><span style="background-color:#8DB2FC">Blue node:</span> Name of the key.
+             The node has the same border color as that of the packets it signs.</li>
+
+        </ul>
+        </p>
       </div>
-      <div class="pure-u-1">
-        <button this="$stop" class="pure-button">Stop</button>
-        <button this="$exit" class="pure-button" disabled>Exit</button>
+      <div class="pure-u-1" style="margin-top:50px;text-align:center">
+        <button this="$stop" class="pure-button pure-button-primary">Stop</button>
+        <button this="$exit" class="pure-button pure-button-primary" disabled>Exit</button>
       </div>
     </div>;
 

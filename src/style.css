@@ -10,15 +10,17 @@ footer { position:absolute; right:0; bottom:0; left:0; padding:1rem 3rem 1rem 3r
     stroke: steelblue;
     stroke-width: 2px;
   }
-  
-  .node text {
+
+.node text {
     font: 20px sans-serif;
-  }
-  
-  .link {
+}
+
+.link {
     fill: none;
     stroke: #ccc;
     stroke-width: 2px;
-  }
-/* 
-@import "../node_modules/daterangepicker/daterangepicker.css"; */
+}
+
+li{
+    margin: 10px 0;
+}
