@@ -13,7 +13,7 @@ export class Plots {
         <input this="$timeRangePicker" id="timeRangePicker" style="width:100%; text-align:center;"/>
       </div>
       <div class="pure-u-1-2">
-        <h3>Packet Throughput</h3>
+        <h3 style="text-align:center">Packet Throughput</h3>
         <TimeSeries this="$timeseries"/>
       </div>
       <div class="pure-u-1-2">
@@ -21,8 +21,8 @@ export class Plots {
         <p style="text-align:center"><i><b>(I): Interest packet; (D): Data packet</b></i></p>
         <pre this="$recents" style="text-align:center">recent packets</pre>
       </div>
-      <div class="pure-u-1">
-        <h3>Namespace Tree</h3>
+      <div class="pure-u-1" style="margin-top:50px;">
+        <h3 style="text-align:center">Namespace Tree</h3>
         <Tree this="$tree"/>
         <p><b>Legend</b>
         <ul>
