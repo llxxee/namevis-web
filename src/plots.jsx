@@ -43,8 +43,8 @@ export class Plots {
       </div>
     </div>;
 
-    this.timeFilterStart = moment().startOf('hour').subtract(30, 'day');
-    this.timeFilterEnd = moment().startOf('hour').add(30, 'day');
+    this.timeFilterStart = moment().startOf('hour').subtract(50, 'day');
+    this.timeFilterEnd = moment().startOf('hour').add(50, 'day');
     this.recents = [];
     this.stopped = true;
     this.$stop.addEventListener("click", (evt) => {

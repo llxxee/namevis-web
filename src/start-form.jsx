@@ -5,8 +5,9 @@ export class StartForm {
     <form this="el" class="pure-form pure-form-aligned">
       <fieldset>
         <div class="pure-control-group">
+        <label><h2>Traffic Input</h2></label><br/>
           <label htmlFor="start_device">Device</label>
-          <select this="$device" id="start_device">
+          <select this="$device" id="start_device" style="width:50%">
             <option value="">loading</option>
           </select>
           <button this="$capture" type="submit" class="pure-button pure-button-primary">Capture</button>
