@@ -47,6 +47,10 @@ export class TimeSeries {
           yAxes : [{
             ticks : {
                 min : 0
+            },
+            scaleLabel: {
+              display: true,
+              labelString: '#packets/second'
             }
           }],
         },
